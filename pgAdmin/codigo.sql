@@ -25,7 +25,7 @@ CREATE TABLE Brinquedo (
   dataUltimoUso DATE NULL,
   frequenciaUso INTEGER NOT NULL,
   ticketPremioMax INTEGER NULL,
-  ticketsCurrBrinquedo INTEGER NULL,
+  ticketsAttBrinquedo INTEGER NULL,
   preco REAL NOT NULL,
   tipoBrinquedo CHAR NULL,
   PRIMARY KEY(idBrinquedo)
@@ -82,8 +82,8 @@ CREATE TABLE Cargo(
 CREATE TABLE Funcionario (
   idFuncionario SERIAL NOT NULL,
   idPessoa INTEGER NOT NULL REFERENCES Pessoa,
+  numCarteiraDeTrabalho VARCHAR(20) NOT NULL UNIQUE,
   idCargo INTEGER NOT NULL REFERENCES Cargo,
-  numCarteiraDeTrabalho VARCHAR(20) NOT NULL,
   dataAdmissao DATE NOT NULL,
   dataDemissao DATE NULL,
   PRIMARY KEY(idFuncionario)
@@ -223,16 +223,16 @@ INSERT INTO Pessoa(idEndereco, nome, CPF, dataNascimento, sexo)
 values(10, 'EDER FERREIRA DO NASCIMENTO JÚNIOR', '976.372.912-27', '1990-07-28', 'M');
 
 /*Inserts Brinquedo */
-INSERT INTO Brinquedo(descricao, dataChegada, dataUltimoUso, frequenciaUso, ticketPremioMax, ticketsCurrBrinquedo, preco, tipoBrinquedo)
+INSERT INTO Brinquedo(descricao, dataChegada, dataUltimoUso, frequenciaUso, ticketPremioMax, ticketsAttBrinquedo, preco, tipoBrinquedo)
 values('Corrida de Carros', '2015-01-04', NULL, 0, 5, 2000, 5, 1);
 
-INSERT INTO Brinquedo(descricao, dataChegada, dataUltimoUso, frequenciaUso, ticketPremioMax, ticketsCurrBrinquedo, preco, tipoBrinquedo)
+INSERT INTO Brinquedo(descricao, dataChegada, dataUltimoUso, frequenciaUso, ticketPremioMax, ticketsAttBrinquedo, preco, tipoBrinquedo)
 values('Corrida de Motos', '2015-01-04', NULL, 0, 5, 2000, 5, 1);
 
-INSERT INTO Brinquedo(descricao, dataChegada, dataUltimoUso, frequenciaUso, ticketPremioMax, ticketsCurrBrinquedo, preco, tipoBrinquedo)
+INSERT INTO Brinquedo(descricao, dataChegada, dataUltimoUso, frequenciaUso, ticketPremioMax, ticketsAttBrinquedo, preco, tipoBrinquedo)
 values('Sinuca', '2015-02-10', NULL, 0,NULL, NULL, 5, 0);
 
-INSERT INTO Brinquedo(descricao, dataChegada, dataUltimoUso, frequenciaUso, ticketPremioMax, ticketsCurrBrinquedo, preco, tipoBrinquedo)
+INSERT INTO Brinquedo(descricao, dataChegada, dataUltimoUso, frequenciaUso, ticketPremioMax, ticketsAttBrinquedo, preco, tipoBrinquedo)
 values('Ping-Pong', '2014-10-04', NULL, 0, NULL, NULL, 5, 0);
 
 /*Inserts Telefone  http://pt.fakenamegenerator.com/gen-male-br-br.php  */
@@ -266,13 +266,12 @@ values(9, 'celular', '6206-3053', '084');
 INSERT INTO Telefone(idPessoa, tipoTelefone, numero, DDD)
 values(10, 'celular', '4034-8072', '084');
 
-
 /*Inserts Cargo*/
 INSERT INTO Cargo(descricao, salario)
 values('Gerente', 3000);
 
 INSERT INTO Cargo(descricao, salario)
-values('Balconista', 1000);
+values('Recepcionista', 1000);
 
 INSERT INTO Cargo(descricao, salario)
 values('Operador de Brinquedo', 1000);
@@ -346,12 +345,12 @@ INSERT INTO Cartao(idCliente, dataEmissao, saldo, ativo)
 values(4, '2015-06-05', 0, TRUE);
 
 /*Inserts Opera*/
-INSERT INTO Opera(idBrinquedo, idfuncionario, diaSemana)
-values(1, 8, 'Segunda-feira');
+INSERT INTO Opera(idBrinquedo, idFuncionario, diaSemana)
+values(1, 5, 'Segunda-feira');
 
 /*Inserts Conserta*/
-INSERT INTO Conserta(idBrinquedo, idfuncionario, diaSemana)
-values(1, 10, 'Segunda-feira');
+INSERT INTO Conserta(idBrinquedo, idFuncionario, diaSemana)
+values(1, 6, 'Segunda-feira');
 
 /*-----------------------------------------------------------------------------------------------*/
 
@@ -362,7 +361,7 @@ SELECT cr.idCredito, cr.valor FROM Credito cr
 SELECT e.idEndereco, e.rua, e.bairro, e.numero, e.CEP, e.cidade, e.UF FROM Endereco e
 
 /* Todos os brinquedos */
-SELECT b.idBrinquedo, b.descricao, b.dataChegada, b.dataUltimoUso, b.frequenciaUso, b.ticketPremioMax, b.ticketsCurrBrinquedo, b.preco, b.tipoBrinquedo FROM Brinquedo b
+SELECT b.idBrinquedo, b.descricao, b.dataChegada, b.dataUltimoUso, b.frequenciaUso, b.ticketPremioMax, b.ticketsAttBrinquedo, b.preco, b.tipoBrinquedo FROM Brinquedo b
 
 /* Todas as pessoas */
 SELECT p.idPessoa, p.idEndereco, p.nome, p.CPF, p.dataNascimento FROM Pessoa p
@@ -376,6 +375,9 @@ SELECT cl.idCliente, cl.idPessoa, cl.dataCadastro FROM Cliente cl
 /* Todos os cartões */
 SELECT ca.idCartao, ca.idCliente, ca.dataEmissao, ca.saldo, ca.ativo FROM Cartao ca
 
+/* Todos os cargos */
+SELECT  car.idCargo, car.descricao, car.salario FROM Cargo car
+
 /* Todos os funcionários*/
 SELECT f.idFuncionario, f.idPessoa, f.numCarteiraDeTrabalho,f.dataAdmissao, f.dataDemissao FROM Funcionario f
 
@@ -388,6 +390,15 @@ SELECT d.idDebito, d.idBrinquedo, d.idCartao, d.dataDebito FROM Debito d
 /* Todos os premios*/
 SELECT pr.idPremio, pr.descricao, pr.qntTickets FROM Premio pr
 
+/* Todos os premios obtidos*/
+SELECT obt.idObter, obt.idCliente, obt.idPremio,  obt.dataObtencao FROM Obter obt
+
+/* Todos os funcionários que operam brinquedos*/
+SELECT op.idOpera, op.idBrinquedo, op.idFuncionario, op.diaSemana FROM Opera op
+
+/* Todos os funcionários que consertam brinquedos*/
+SELECT co.idConserta, co.idBrinquedo, co.idFuncionario, co.diaSemana FROM Conserta co
+
 /*-----------------------------------------------------------------------------------------------*/
 
 /*Indice para tabela Pessoa (idPessoa)*/
@@ -399,3 +410,184 @@ EXPLAIN ANALYSE SELECT * FROM Pessoa WHERE idPessoa = 10;
 CREATE INDEX index_btree ON Cargo USING HASH (salario);
 
 EXPLAIN ANALYSE SELECT * FROM Cargo WHERE salario BETWEEN 2000 AND 3000;
+
+/*-----------------------------------------------------------------------------------------------*/
+/*Regra de negócio para a tabela credito*/
+CREATE FUNCTION credito_gatilho() RETURNS trigger AS $credito_gatilho$
+BEGIN
+IF NEW.valor < 0 OR NEW.valor IS NULL THEN
+RAISE EXCEPTION 'O valor não pode ser negativo ou nulo';
+END IF;
+END
+$credito_gatilho$ LANGUAGE plpgsql;
+
+CREATE TRIGGER credito_gatilho BEFORE INSERT OR UPDATE
+ON credito
+FOR EACH ROW EXECUTE
+PROCEDURE credito_gatilho();
+
+/*Regra de negócio para a tabela brinquedo*/
+CREATE FUNCTION brinquedo_gatilho() RETURNS trigger AS $brinquedo_gatilho$
+BEGIN
+IF NEW.descricao IS NULL THEN
+RAISE EXCEPTION 'A descrição do brinquedo não pode ser nulo';
+END IF;
+IF NEW.dataChegada IS NULL THEN
+RAISE EXCEPTION 'A data de chegada do brinquedo não pode ser nulo';
+END IF;
+IF NEW.dataChegada > current_date THEN
+RAISE EXCEPTION 'A data de chegada do brinquedo não pode ser depois de hoje';
+END IF;
+IF NEW.dataUltimoUso < NEW.dataChegada THEN
+RAISE EXCEPTION 'A data de último uso não pode ser anterior que a data de chegada do brinquedo';
+END IF;
+IF NEW.frequenciaUso < 0 OR NEW.frequenciaUso IS NULL THEN
+RAISE EXCEPTION 'A frequencia de uso não pode ser negativa ou nula';
+END IF;
+IF NEW.ticketPremioMax < 0 OR NEW.ticketPremioMax IS NULL THEN
+RAISE EXCEPTION 'A quantidade de tickets máxima não pode ser negativa ou nulo';
+END IF;
+IF NEW.ticketPremioMax > NEW.ticketsAttBrinquedo THEN
+RAISE EXCEPTION 'A quantidade de tickets máxima não pode ser mais do que tem no brinquedo';
+END IF;
+IF NEW.ticketsAttBrinquedo  < 0 OR NEW.ticketsAttBrinquedo IS NULL THEN
+RAISE EXCEPTION 'A quantidade de tickets no brinquedo não pode ser negativa ou nula';
+END IF;
+IF NEW.preco < 0 OR NEW.preco IS NULL THEN
+RAISE EXCEPTION 'O preço do brinquedo não pode ser negativo ou nulo';
+END IF;
+END;
+$brinquedo_gatilho$ LANGUAGE plpgsql;
+
+CREATE TRIGGER brinquedo_gatilho BEFORE INSERT OR UPDATE
+ON brinquedo
+FOR EACH ROW EXECUTE
+PROCEDURE brinquedo_gatilho();
+
+/*Regra de negócio para a tabela cliente*/
+CREATE FUNCTION cliente_gatilho() RETURNS trigger AS $cliente_gatilho$
+BEGIN
+IF NEW.dataCadastro IS NULL THEN
+RAISE EXCEPTION 'A data de cadastro não pode ser nulo';
+END IF;
+IF NEW.dataCadastro <> current_date THEN
+RAISE EXCEPTION 'A data de cadastro não pode ser diferente do dia de hoje';
+END IF;
+END
+$cliente_gatilho$ LANGUAGE plpgsql;
+
+CREATE TRIGGER cliente_gatilho BEFORE INSERT OR UPDATE
+ON cliente
+FOR EACH ROW EXECUTE
+PROCEDURE cliente_gatilho();
+
+/*Regra de negócio para a tabela cartão*/
+CREATE FUNCTION cartao_gatilho() RETURNS trigger AS $cartao_gatilho$
+BEGIN
+IF NEW.dataEmissao IS NULL THEN
+RAISE EXCEPTION 'A data de emissão não pode ser nulo';
+END IF;
+IF NEW.dataEmissao > current_date THEN
+RAISE EXCEPTION 'A data de emissão não pode ser depois ao dia de hoje';
+END IF;
+IF NEW.saldo < 0 OR NEW.saldo IS NULL THEN
+RAISE EXCEPTION 'O saldo não pode ser negativo ou nulo';
+END IF;
+IF NEW.ativo IS NULL THEN
+RAISE EXCEPTION 'O cartão precisa está ativo ou desativado';
+END IF;
+END
+$cartao_gatilho$ LANGUAGE plpgsql;
+
+CREATE TRIGGER cartao_gatilho BEFORE INSERT OR UPDATE
+ON cartao
+FOR EACH ROW EXECUTE
+PROCEDURE cartao_gatilho();
+
+/*Regra de negócio para a tabela cargo*/
+CREATE FUNCTION cargo_gatilho() RETURNS trigger AS $cargo_gatilho$
+BEGIN
+IF NEW.descricao IS NULL THEN
+RAISE EXCEPTION 'A descrição do cargo não pode ser nulo';
+END IF;
+IF NEW.salario < 788 THEN
+RAISE EXCEPTION 'O salário não pode ser menor que o salário mínimo';
+END IF;
+NEW.ultima_data := 'now';
+NEW.ultimo_usuario := current_user;
+RETURN NEW;
+END;
+$cargo_gatilho$ LANGUAGE plpgsql;
+
+CREATE TRIGGER cargo_gatilho BEFORE INSERT OR UPDATE
+ON cargo
+FOR EACH ROW EXECUTE
+PROCEDURE cargo_gatilho();
+
+/*Regra de negócio para a tabela CompraCredito*/
+CREATE FUNCTION compracredito_gatilho() RETURNS trigger AS $compracredito_gatilho$
+BEGIN
+IF NEW.dataCompra IS NULL THEN
+RAISE EXCEPTION 'A data de compra não pode ser nulo';
+END IF;
+IF NEW.dataCompra <> current_date THEN
+RAISE EXCEPTION 'A data de compra não pode ser diferente do dia de hoje';
+END IF;
+END
+$compracredito_gatilho$ LANGUAGE plpgsql;
+
+CREATE TRIGGER compracredito_gatilho BEFORE INSERT OR UPDATE
+ON compraCredito
+FOR EACH ROW EXECUTE
+PROCEDURE compracredito_gatilho();
+
+/*Regra de negócio para a tabela Debito*/
+CREATE FUNCTION debito_gatilho() RETURNS trigger AS $debito_gatilho$
+BEGIN
+IF NEW.dataDebito IS NULL THEN
+RAISE EXCEPTION 'A data de débito não pode ser nulo';
+END IF;
+IF NEW.dataDebito <> current_date THEN
+RAISE EXCEPTION 'A data de débito não pode ser diferente do dia de hoje';
+END IF;
+END
+$debito_gatilho$ LANGUAGE plpgsql;
+
+CREATE TRIGGER debito_gatilho BEFORE INSERT OR UPDATE
+ON Debito
+FOR EACH ROW EXECUTE
+PROCEDURE debito_gatilho();
+
+/*Regra de negócio para a tabela Premio*/
+CREATE FUNCTION premio_gatilho() RETURNS trigger AS $premio_gatilho$
+BEGIN
+IF NEW.descricao IS NULL THEN
+RAISE EXCEPTION 'A descrição não pode ser nulo';
+END IF;
+IF NEW.qntTickets <= 0 OR NEW.qntTickets IS NULL THEN
+RAISE EXCEPTION 'A quantidade de tickets não pode ser negativo ou nulo';
+END IF;
+END
+$premio_gatilho$ LANGUAGE plpgsql;
+
+CREATE TRIGGER premio_gatilho BEFORE INSERT OR UPDATE
+ON Premio
+FOR EACH ROW EXECUTE
+PROCEDURE premio_gatilho();
+
+/*Regra de negócio para a tabela Obter*/
+CREATE FUNCTION obter_gatilho() RETURNS trigger AS $obter_gatilho$
+BEGIN
+IF NEW.dataObtencao IS NULL THEN
+RAISE EXCEPTION 'A data de obtenção não pode ser nulo';
+END IF;
+IF NEW.dataObtencao <> current_date THEN
+RAISE EXCEPTION 'A data de obtenção não pode ser diferente do dia de hoje';
+END IF;
+END
+$obter_gatilho$ LANGUAGE plpgsql;
+
+CREATE TRIGGER obter_gatilho BEFORE INSERT OR UPDATE
+ON Obter
+FOR EACH ROW EXECUTE
+PROCEDURE obter_gatilho();
